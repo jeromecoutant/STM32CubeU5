@@ -105,9 +105,10 @@ int main(void)
   MX_I2C_Init();
   MX_ICACHE_Init();
   /* USER CODE BEGIN 2 */
-  /* Configure LED1 and LED3 */
+  /* Configure LED1 and LED2 */
   BSP_LED_Init(LED1);
-  BSP_LED_Init(LED3);
+  BSP_LED_Init(LED2);
+//  BSP_LED_Init(LED3);
 
 
 #ifdef MASTER_BOARD
@@ -277,26 +278,25 @@ void SystemClock_Config(void)
   }
 
   /* Switch to SMPS regulator instead of LDO */
-  if(HAL_PWREx_ConfigSupply(PWR_SMPS_SUPPLY) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
   /** Initializes the CPU, AHB and APB busses clocks
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSI
+                                     | RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_4;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_0;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
-  RCC_OscInitStruct.PLL.PLLMBOOST = RCC_PLLMBOOST_DIV1;
-  RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 80;
+  RCC_OscInitStruct.PLL.PLLMBOOST = RCC_PLLMBOOST_DIV4;
+  RCC_OscInitStruct.PLL.PLLM = 3;
+  RCC_OscInitStruct.PLL.PLLN = 10;
   RCC_OscInitStruct.PLL.PLLP = 2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
-  RCC_OscInitStruct.PLL.PLLR = 2;
-  RCC_OscInitStruct.PLL.PLLRGE = RCC_PLLVCIRANGE_0;
+  RCC_OscInitStruct.PLL.PLLR = 1;
+  RCC_OscInitStruct.PLL.PLLRGE = RCC_PLLVCIRANGE_1;
   RCC_OscInitStruct.PLL.PLLFRACN = 0;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -317,7 +317,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  __HAL_RCC_PWR_CLK_DISABLE();
+ // __HAL_RCC_PWR_CLK_DISABLE();
 }
 
 /**
@@ -329,9 +329,9 @@ static void MX_I2C_Init(void)
 {
 
   hi2c.Instance = I2C3;
-  hi2c.Init.Timing = 0x00C01F67;
-  hi2c.Init.OwnAddress1 = I2C_ADDRESS;
-  hi2c.Init.AddressingMode = I2C_ADDRESSINGMODE_10BIT;
+  hi2c.Init.Timing = 0x90A13E56;
+  hi2c.Init.OwnAddress1 = 0;
+  hi2c.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
   hi2c.Init.OwnAddress2 = 0;
   hi2c.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
@@ -350,12 +350,6 @@ static void MX_I2C_Init(void)
   /** Configure Digital filter
   */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** I2C Fast mode Plus enable
-  */
-  if (HAL_I2CEx_ConfigFastModePlus(&hi2c, I2C_FASTMODEPLUS_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
@@ -475,8 +469,8 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
     /* Turn Off LED1 */
     BSP_LED_Off(LED1);
 
-    /* Turn On LED3 */
-    BSP_LED_On(LED3);
+    /* Turn On LED2 */
+    BSP_LED_On(LED2);
   }
 }
 
@@ -489,8 +483,8 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* Turn LED3 on */
-  BSP_LED_On(LED3);
+  /* Turn LED2on */
+  BSP_LED_On(LED2);
   while (1)
   {
   }

@@ -73,6 +73,7 @@ void HAL_MspInit(void)
   /** Disable the internal Pull-Up in Dead Battery pins of UCPD peripheral
   */
   HAL_PWREx_DisableUCPDDeadBattery();
+  HAL_PWREx_EnableVddA();
 
   /* USER CODE BEGIN MspInit 1 */
 
@@ -88,16 +89,16 @@ void HAL_MspInit(void)
 void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+//  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the peripherals clock
   */
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C3;
-    PeriphClkInit.I2c3ClockSelection = RCC_I2C3CLKSOURCE_SYSCLK;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-    {
-      Error_Handler();
-    }
+//    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C3;
+//    PeriphClkInit.I2c3ClockSelection = RCC_I2C3CLKSOURCE_SYSCLK;
+//    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+//    {
+//      Error_Handler();
+//    }
 
     /**I2C GPIO Configuration
     PG7     ------> I2C3_SCL
@@ -118,9 +119,9 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     __HAL_RCC_I2C3_CLK_ENABLE();
 
     /* I2C interrupt Init */
-    HAL_NVIC_SetPriority(I2C3_EV_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(I2C3_EV_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(I2C3_EV_IRQn);
-    HAL_NVIC_SetPriority(I2C3_ER_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(I2C3_ER_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(I2C3_ER_IRQn);
 
 }
