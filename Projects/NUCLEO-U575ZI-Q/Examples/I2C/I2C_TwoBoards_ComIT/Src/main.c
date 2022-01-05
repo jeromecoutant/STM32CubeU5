@@ -35,7 +35,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 /* Uncomment this line to use the board as master, if not it is used as slave */
-//#define MASTER_BOARD
+#define MASTER_BOARD
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -45,7 +45,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-I2C_HandleTypeDef hi2c2;
+I2C_HandleTypeDef hi2c;
 
 /* USER CODE BEGIN PV */
 /* Buffer used for transmission */
@@ -57,8 +57,7 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_I2C2_Init(void);
+static void MX_I2C_Init(void);
 static void MX_ICACHE_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -103,8 +102,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_I2C2_Init();
+  MX_I2C_Init();
   MX_ICACHE_Init();
   /* USER CODE BEGIN 2 */
   /* Configure LED1 and LED3 */
@@ -140,7 +138,7 @@ int main(void)
      "aTxBuffer" buffer */
   do
   {
-    if (HAL_I2C_Master_Transmit_IT(&hi2c2, (uint16_t)I2C_ADDRESS, (uint8_t *)aTxBuffer, TXBUFFERSIZE) != HAL_OK)
+    if (HAL_I2C_Master_Transmit_IT(&hi2c, (uint16_t)I2C_ADDRESS, (uint8_t *)aTxBuffer, TXBUFFERSIZE) != HAL_OK)
     {
       /* Error_Handler() function is called when error occurs. */
       Error_Handler();
@@ -153,14 +151,14 @@ int main(void)
         For simplicity reasons, this example is just waiting till the end of the
         transfer, but application may perform other tasks while transfer operation
         is ongoing. */
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+    while (HAL_I2C_GetState(&hi2c) != HAL_I2C_STATE_READY)
     {
     }
 
     /* When Acknowledge failure occurs (Slave don't acknowledge it's address)
        Master restarts communication */
   }
-  while (HAL_I2C_GetError(&hi2c2) == HAL_I2C_ERROR_AF);
+  while (HAL_I2C_GetError(&hi2c) == HAL_I2C_ERROR_AF);
 
   /* Wait for User push-button press before starting the Communication */
   while (BSP_PB_GetState(BUTTON_USER) != GPIO_PIN_SET)
@@ -178,7 +176,7 @@ int main(void)
   /*##- Put I2C peripheral in reception process ###########################*/
   do
   {
-    if (HAL_I2C_Master_Receive_IT(&hi2c2, (uint16_t)I2C_ADDRESS, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
+    if (HAL_I2C_Master_Receive_IT(&hi2c, (uint16_t)I2C_ADDRESS, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
     {
       /* Error_Handler() function is called when error occurs. */
       Error_Handler();
@@ -191,21 +189,21 @@ int main(void)
         For simplicity reasons, this example is just waiting till the end of the
         transfer, but application may perform other tasks while transfer operation
         is ongoing. */
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+    while (HAL_I2C_GetState(&hi2c) != HAL_I2C_STATE_READY)
     {
     }
 
     /* When Acknowledge failure occurs (Slave don't acknowledge it's address)
        Master restarts communication */
   }
-  while (HAL_I2C_GetError(&hi2c2) == HAL_I2C_ERROR_AF);
+  while (HAL_I2C_GetError(&hi2c) == HAL_I2C_ERROR_AF);
 
 #else
 
   /* The board receives the message and sends it back */
 
   /*##- Put I2C peripheral in reception process ###########################*/
-  if (HAL_I2C_Slave_Receive_IT(&hi2c2, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
+  if (HAL_I2C_Slave_Receive_IT(&hi2c, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
   {
     /* Transfer error in reception process */
     Error_Handler();
@@ -218,14 +216,14 @@ int main(void)
       For simplicity reasons, this example is just waiting till the end of the
       transfer, but application may perform other tasks while transfer operation
       is ongoing. */
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+  while (HAL_I2C_GetState(&hi2c) != HAL_I2C_STATE_READY)
   {
   }
 
   /*##- Start the transmission process #####################################*/
   /* While the I2C in reception process, user can transmit data through
      "aTxBuffer" buffer */
-  if (HAL_I2C_Slave_Transmit_IT(&hi2c2, (uint8_t *)aTxBuffer, TXBUFFERSIZE) != HAL_OK)
+  if (HAL_I2C_Slave_Transmit_IT(&hi2c, (uint8_t *)aTxBuffer, TXBUFFERSIZE) != HAL_OK)
   {
     /* Transfer error in transmission process */
     Error_Handler();
@@ -240,7 +238,7 @@ int main(void)
       For simplicity reasons, this example is just waiting till the end of the
       transfer, but application may perform other tasks while transfer operation
       is ongoing. */
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+  while (HAL_I2C_GetState(&hi2c) != HAL_I2C_STATE_READY)
   {
   }
 
@@ -323,55 +321,44 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief I2C2 Initialization Function
+  * @brief I2C Initialization Function
   * @param None
   * @retval None
   */
-static void MX_I2C2_Init(void)
+static void MX_I2C_Init(void)
 {
 
-  /* USER CODE BEGIN I2C2_Init 0 */
-
-  /* USER CODE END I2C2_Init 0 */
-
-  /* USER CODE BEGIN I2C2_Init 1 */
-
-  /* USER CODE END I2C2_Init 1 */
-  hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x00C01F67;
-  hi2c2.Init.OwnAddress1 = I2C_ADDRESS;
-  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_10BIT;
-  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c2.Init.OwnAddress2 = 0;
-  hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  hi2c.Instance = I2C1;
+  hi2c.Init.Timing = 0x00C01F67;
+  hi2c.Init.OwnAddress1 = I2C_ADDRESS;
+  hi2c.Init.AddressingMode = I2C_ADDRESSINGMODE_10BIT;
+  hi2c.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c.Init.OwnAddress2 = 0;
+  hi2c.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c) != HAL_OK)
   {
     Error_Handler();
   }
   /** Configure Analogue filter
   */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
   /** Configure Digital filter
   */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c, 0) != HAL_OK)
   {
     Error_Handler();
   }
   /** I2C Fast mode Plus enable
   */
-  if (HAL_I2CEx_ConfigFastModePlus(&hi2c2, I2C_FASTMODEPLUS_ENABLE) != HAL_OK)
+  if (HAL_I2CEx_ConfigFastModePlus(&hi2c, I2C_FASTMODEPLUS_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2C2_Init 2 */
-
-  /* USER CODE END I2C2_Init 2 */
-
 }
 
 /**
@@ -402,19 +389,6 @@ static void MX_ICACHE_Init(void)
   /* USER CODE BEGIN ICACHE_Init 2 */
 
   /* USER CODE END ICACHE_Init 2 */
-
-}
-
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_GPIO_Init(void)
-{
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOB_CLK_ENABLE();
 
 }
 
