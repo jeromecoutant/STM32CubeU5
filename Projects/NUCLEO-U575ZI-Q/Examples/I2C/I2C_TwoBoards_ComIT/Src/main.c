@@ -328,7 +328,7 @@ void SystemClock_Config(void)
 static void MX_I2C_Init(void)
 {
 
-  hi2c.Instance = I2C1;
+  hi2c.Instance = I2C3;
   hi2c.Init.Timing = 0x00C01F67;
   hi2c.Init.OwnAddress1 = I2C_ADDRESS;
   hi2c.Init.AddressingMode = I2C_ADDRESSINGMODE_10BIT;
